@@ -1,6 +1,6 @@
 Scripts/
 pyvenv.cfg
-src/kode/DronnningeDatabsen.db
+src/Kode/DronningeDatabasen.db
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
