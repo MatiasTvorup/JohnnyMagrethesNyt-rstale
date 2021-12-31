@@ -81,8 +81,7 @@ def MestBrugteOrdAlleAar():
             nyOrdbog[ord] = ordbog[ord]
     return nyOrdbog
 
-def HvorMangeGangeNaevnes(oddsOrd):
-    aarRaekke = range(2001,2021)
+def HvorMangeGangeNaevnes(oddsOrd, aarRaekke):
     ordPerAar = {}
     forbindelse = DatabaseForbindelse().cursor()
 
@@ -97,6 +96,14 @@ def HvorMangeGangeNaevnes(oddsOrd):
                 liste.append(gangeOrdBlevSagt)
         ordPerAar[ord] = liste
     return ordPerAar
+    
+def gennemsnitligtGangeOrdNævnes(aarRaekke, ord):
+    forekomster = HvorMangeGangeNaevnes([ord], aarRaekke)[ord]
+    forekomster = [e[1] for e in forekomster]
+    forekomster = sum(forekomster)
+    antalAar = len(aarRaekke)
+    return forekomster/antalAar
+
 
 def plotOrdPerAar(ord, forekomstListe):
     #Aarstal
@@ -104,12 +111,21 @@ def plotOrdPerAar(ord, forekomstListe):
     #Forekomster
     yAkse = [e[1] for e in forekomstListe]
 
+    plt.figure(figsize=(8, 6), dpi=80)
+    plt.subplots_adjust(bottom=0.3)
     plt.bar(xAkse, yAkse)
     plt.xticks(np.arange(min(xAkse), max(xAkse)+1, 1.0))
     plt.xticks(rotation=45)
     plt.xlabel('Årstal')
     plt.ylabel('Forekomster')
-    plt.title('Gange ' + ord + ' blev sagt i dronningens nytårstale')
+    plt.title('Gange ' + ord + ' blev sagt i dronningens nytårstaler')
+
+    text = ord + ' nævnes ' + str(gennemsnitligtGangeOrdNævnes(range(2001,2021),ord)) + ' gange fra 2001 til 2020.'
+    plt.figtext(0.1, 0.15, text)    
+    
+    text = ord + ' nævnes ' + str(gennemsnitligtGangeOrdNævnes(range(2015,2021),ord)) + ' gange fra 2015 til 2020.'
+    plt.figtext(0.1, 0.10, text)
+    
     plt.savefig("../Diagrammer/" + ord + "_2001_til_2020.png")
     plt.clf()
 
@@ -119,11 +135,8 @@ if __name__ == "__main__":
     # print("GUD BEVARE DANMARK")
     # KlargoerDatabase()
     # IndsaetAlleTalerIDatabasen()
-    # ord2002 = MestBrugteOrdIAar(2002)
-    # print(ord2002)
-    # print(MestBrugteOrdAlleAar())
     oddsOrd = ["danmark", "danske", "tak", "grønland", "færøerne", "nytår", "familie", "samfund", "verden"]
-    ordbog = HvorMangeGangeNaevnes(oddsOrd)
-    # print(ordbog)
+    ordbog = HvorMangeGangeNaevnes(oddsOrd, range(2001,2021))
     for ord in ordbog:
         plotOrdPerAar(ord, ordbog[ord])
+    # print(gennemsnitligtGangeOrdNævnes(range(2015,2020), 'grønland'))
