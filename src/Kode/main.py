@@ -40,7 +40,7 @@ def IndsaetOrdlisteIDatabase(Ordliste, AarsTal, DatabaseForbindelse):
 
 def IndsaetAlleTalerIDatabasen():
     forbindelse = DatabaseForbindelse()
-    for aar in range(2001,2021):
+    for aar in range(2001,2022):
         IndsaetOrdlisteIDatabase(TaelForekomster(TekstTilListe(HentTale(aar))), aar, forbindelse)
 
 def FjernAlmindeligeOrd(Ordliste):
@@ -68,7 +68,7 @@ def MestBrugteOrdIAar(Aar):
 
 def MestBrugteOrdAlleAar():
     ordbog = {}
-    for aar in range(2001,2021):
+    for aar in range(2001,2022):
         ordliste = MestBrugteOrdIAar(aar)
         for ord in ordliste:
             if (ord[0] in ordbog):
@@ -120,23 +120,23 @@ def plotOrdPerAar(ord, forekomstListe):
     plt.ylabel('Forekomster')
     plt.title('Gange ' + ord + ' blev sagt i dronningens nytårstaler')
 
-    text = ord + ' nævnes ' + str(gennemsnitligtGangeOrdNævnes(range(2001,2021),ord)) + ' gange fra 2001 til 2020.'
+    text = ord + ' nævnes ' + str(gennemsnitligtGangeOrdNævnes(range(2001,2022),ord)) + ' gange fra 2001 til 2021.'
     plt.figtext(0.1, 0.15, text)    
     
-    text = ord + ' nævnes ' + str(gennemsnitligtGangeOrdNævnes(range(2015,2021),ord)) + ' gange fra 2015 til 2020.'
+    text = ord + ' nævnes ' + str(gennemsnitligtGangeOrdNævnes(range(2016,2022),ord)) + ' gange fra 2016 til 2021.'
     plt.figtext(0.1, 0.10, text)
     
-    plt.savefig("../Diagrammer/" + ord + "_2001_til_2020.png")
+    plt.savefig("../Diagrammer/" + ord + "_2001_til_2021.png")
     plt.clf()
 
 
 
 if __name__ == "__main__":
     # print("GUD BEVARE DANMARK")
-    # KlargoerDatabase()
-    # IndsaetAlleTalerIDatabasen()
+    KlargoerDatabase()
+    IndsaetAlleTalerIDatabasen()
     oddsOrd = ["danmark", "danske", "tak", "grønland", "færøerne", "nytår", "familie", "samfund", "verden"]
-    ordbog = HvorMangeGangeNaevnes(oddsOrd, range(2001,2021))
+    ordbog = HvorMangeGangeNaevnes(oddsOrd, range(2001,2022))
     for ord in ordbog:
         plotOrdPerAar(ord, ordbog[ord])
     # print(gennemsnitligtGangeOrdNævnes(range(2015,2020), 'grønland'))
