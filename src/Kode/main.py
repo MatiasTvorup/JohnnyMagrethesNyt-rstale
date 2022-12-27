@@ -135,7 +135,7 @@ if __name__ == "__main__":
     # print("GUD BEVARE DANMARK")
     KlargoerDatabase()
     IndsaetAlleTalerIDatabasen()
-    oddsOrd = ["danmark", "danske", "tak", "grønland", "færøerne", "nytår", "familie", "samfund", "verden"]
+    oddsOrd = ["danmark", "danske", "tak", "grønland", "færøerne", "nytår", "samfund", "verden", "nytårsønsker"]
     ordbog = HvorMangeGangeNaevnes(oddsOrd, range(2001,2022))
     for ord in ordbog:
         plotOrdPerAar(ord, ordbog[ord])
