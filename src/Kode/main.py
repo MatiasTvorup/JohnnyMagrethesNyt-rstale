@@ -105,7 +105,7 @@ def gennemsnitligtGangeOrdNævnes(aarRaekke, ord):
     return forekomster/antalAar
 
 
-def plotOrdPerAar(ord, forekomstListe):
+def plotOrdPerAar(ord, forekomstListe, grænseVærdi):
     #Aarstal
     xAkse = [e[0] for e in forekomstListe]
     #Forekomster
@@ -120,6 +120,8 @@ def plotOrdPerAar(ord, forekomstListe):
     plt.ylabel('Forekomster')
     plt.title('Gange ' + ord + ' blev sagt i dronningens nytårstaler')
 
+    plt.axhline(y=grænseVærdi, linewidth=1, color='r')
+
     text = ord + ' nævnes ' + str(gennemsnitligtGangeOrdNævnes(range(2001,2022),ord)) + ' gange fra 2001 til 2021.'
     plt.figtext(0.1, 0.15, text)    
     
@@ -132,11 +134,20 @@ def plotOrdPerAar(ord, forekomstListe):
 
 
 if __name__ == "__main__":
-    # print("GUD BEVARE DANMARK")
-    KlargoerDatabase()
+    # KlargoerDatabase()
     IndsaetAlleTalerIDatabasen()
-    oddsOrd = ["danmark", "danske", "tak", "grønland", "færøerne", "nytår", "samfund", "verden", "nytårsønsker"]
-    ordbog = HvorMangeGangeNaevnes(oddsOrd, range(2001,2022))
+    oddsOrdDict = {
+        "danmark": 7.5,
+        "danske": 4.5,
+        "tak": 3.5,
+        "grønland": 3.5,
+        "færøerne": 2.5,
+        "nytår": 2.5,
+        "samfund": 2.5,
+        "verden": 2.5,
+        "nytårsønsker": 2.5
+    }
+    ordbog = HvorMangeGangeNaevnes(oddsOrdDict, range(2001, 2022))
     for ord in ordbog:
-        plotOrdPerAar(ord, ordbog[ord])
+        plotOrdPerAar(ord, ordbog[ord], oddsOrdDict[ord])
     # print(gennemsnitligtGangeOrdNævnes(range(2015,2020), 'grønland'))
