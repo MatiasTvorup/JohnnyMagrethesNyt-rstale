@@ -4,6 +4,7 @@ import re
 from collections import Counter
 import matplotlib.pyplot as plt
 import numpy as np
+import math
 
 def HentTale(Aarstal):
     fil = io.open("../Taler/" + str(Aarstal) + ".txt","r", encoding="utf-8")
@@ -64,7 +65,8 @@ def FjernAlmindeligeOrd(Ordliste):
 def MestBrugteOrdIAar(Aar):
     forbindelse = DatabaseForbindelse().cursor()
     forbindelse.execute("SELECT Ord, Forekomster FROM NytaarsTale WHERE Aar = :aarstal", {"aarstal":Aar})
-    return FjernAlmindeligeOrd(forbindelse.fetchall())
+    # return FjernAlmindeligeOrd(forbindelse.fetchall())
+    return forbindelse.fetchall()
 
 def MestBrugteOrdAlleAar():
     ordbog = {}
@@ -104,6 +106,15 @@ def gennemsnitligtGangeOrdNævnes(aarRaekke, ord):
     antalAar = len(aarRaekke)
     return forekomster/antalAar
 
+def årHvorOrdNævnes(årRække, ordListe):
+    # ordList er en liste af lister, hvor hver indre lister indeholder alle de ønskede mutationer af et ord, hvor det skal tælles hvor mange forskellige år, disse ord er blevet sagt.
+    nævneÅr = []
+    for ord in ordListe:
+        årligeForekomster = HvorMangeGangeNaevnes([ord], årRække)[ord]
+        for forekomst in årligeForekomster:
+            if forekomst[1] > 0 and not forekomst[0] in nævneÅr:
+                nævneÅr.append(forekomst[0])
+    return len(nævneÅr)
 
 def plotOrdPerAar(ord, forekomstListe, grænseVærdi):
     #Aarstal
@@ -157,7 +168,33 @@ def plotOrdPerAar(ord, forekomstListe, grænseVærdi):
     fig.savefig("../Diagrammer/" + ord + "_2001_til_2023.png")
     fig.clf()
 
+def plotÅrHvorOrdNævnes(ordListe, årRække):
+    antalSubplots = len(ordListe)
+    kvadrat = math.ceil(math.sqrt(antalSubplots))
+    ordIter = 0
+    fig, axs = plt.subplots(nrows=kvadrat, ncols=kvadrat, figsize=(4*kvadrat, 4*kvadrat))
+    for row in range(len(axs)):
+        for ax in axs[row]:
+            nævnt = årHvorOrdNævnes(årRække, ordListe[ordIter])
+            ikkeNævnt = årRække.stop - årRække.start - nævnt
+            ax.pie([nævnt, ikkeNævnt], labels=["Nævnt: " + str(nævnt), "Ikke nævnt: " + str(ikkeNævnt)], labeldistance=0.6, colors=["lime", "gainsboro"])
+            titel = str(round(nævnt/(årRække.stop - årRække.start) * 100, 1)) + "% "
+            for i in range(len(ordListe[ordIter])):
+                if i != 0:
+                    titel += ", "
+                titel += ordListe[ordIter][i]
 
+            ax.set_title(titel)
+
+            ordIter += 1
+            if ordIter >= len(ordListe):
+                break
+        if ordIter >= len(ordListe):
+            break
+    plotTitle = "Hvor mange år fra " + str(årRække.start) + " til " + str(årRække.stop) + " er odds-ord indgået i Dronningens nytårstale?"
+    fig.suptitle(plotTitle, fontsize='xx-large')
+    fig.savefig("../Diagrammer/singleHit_" + str(årRække.start) + "_til_" + str(årRække.stop) + ".png")
+    fig.clf()
 
 if __name__ == "__main__":
     # KlargoerDatabase()
@@ -177,3 +214,72 @@ if __name__ == "__main__":
     for ord in ordbog:
         plotOrdPerAar(ord, ordbog[ord], oddsOrdDict[ord])
     # print(gennemsnitligtGangeOrdNævnes(range(2015,2020), 'grønland'))
+    plotÅrHvorOrdNævnes([
+        ["student", "studenter"], 
+        ["folkefest"],
+        ["verden"],
+        ["glæde", "glæder"],
+        ["nytårshilsen"],
+        ["sydslesvig"],
+        ["kronprinseparret"],
+        ["folk"],
+        ["fødselsdag", "fødselsdage"],
+        ["nytårsønsker"],
+        ["soldater"],
+        ["unge"],
+        ["ældre"],
+        ["børnebørn"],
+        ["kronprinsen"],
+        ["kronprinsessen"],
+        ["krig", "krigen"],
+        ["mindretal"],
+        ["børn"],
+        ["nytårsaften"],
+        ["politi", "politiet"],
+        ["håb"],
+        ["ukraine"],
+        ["sommer", "sommeren"],
+        ["stolt", "stolte"],
+        ["europa"],
+        ["forventning", "forventninger"],
+        ["generationer"],
+        ["klima", "klimaet"],
+        ["jul", "julen"],
+        ["jøder", "jødisk"],
+        ["særligt"],
+        ["dagligdag", "dagligdagen"],
+        ["pårørende"],
+        ["ansvar"],
+        ["arbejde", "arbejdet"],
+        ["frihed", "friheden"],
+        ["sikkerhed"],
+        ["hjerte", "hjertet"],
+        ["nærmeste"],
+        ["opmærksomhed", "opmærksomheden"],
+        ["fred", "freden"],
+        ["krise", "krisen"],
+        ["taknemmelig", "taknemmelighed"],
+        ["terror", "terroren"],
+        ["muligheder"],
+        ["grænse","grænsen"],
+        ["mærkedag"],
+        ["muslimer", "muslimsk"],
+        ["baltiske"],
+        ["atter"],
+        ["befolkning", "befolkningen"],
+        ["ensom", "ensomhed"],
+        ["naturen", "naturens"],
+        ["klimaforandringer", "klimaforandringerne"],
+        ["konflikt", "konflikten"],
+        ["sundhedspersonale", "sundhedspersonlaet"],
+        ["israel"],
+        ["usa"],
+        ["civile"],
+        ["frankrig"],
+        ["alvor"],
+        ["energi"],
+        ["omsorg"],
+        ["grev"],
+        ["flygtninge"],
+        ["washington"],
+        ], range(2001,2023))
