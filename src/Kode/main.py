@@ -40,7 +40,7 @@ def IndsaetOrdlisteIDatabase(Ordliste, AarsTal, DatabaseForbindelse):
 
 def IndsaetAlleTalerIDatabasen():
     forbindelse = DatabaseForbindelse()
-    for aar in range(2001,2022):
+    for aar in range(2001,2023):
         IndsaetOrdlisteIDatabase(TaelForekomster(TekstTilListe(HentTale(aar))), aar, forbindelse)
 
 def FjernAlmindeligeOrd(Ordliste):
@@ -68,7 +68,7 @@ def MestBrugteOrdIAar(Aar):
 
 def MestBrugteOrdAlleAar():
     ordbog = {}
-    for aar in range(2001,2022):
+    for aar in range(2001,2023):
         ordliste = MestBrugteOrdIAar(aar)
         for ord in ordliste:
             if (ord[0] in ordbog):
@@ -111,43 +111,69 @@ def plotOrdPerAar(ord, forekomstListe, grænseVærdi):
     #Forekomster
     yAkse = [e[1] for e in forekomstListe]
 
-    plt.figure(figsize=(8, 6), dpi=80)
-    plt.subplots_adjust(bottom=0.3)
-    plt.bar(xAkse, yAkse)
-    plt.xticks(np.arange(min(xAkse), max(xAkse)+1, 1.0))
-    plt.xticks(rotation=45)
-    plt.xlabel('Årstal')
-    plt.ylabel('Forekomster')
-    plt.title('Gange ' + ord + ' blev sagt i dronningens nytårstaler')
+    # plt.figure(figsize=(8, 6), dpi=80)
+    fig, (ax0, ax1) = plt.subplots(nrows=1, ncols=2, figsize=(12,6))
+    fig.subplots_adjust(bottom=0.3)
+    ax0.bar(xAkse, yAkse)
+    ax0.tick_params(labelrotation=45)
+    ax0.set_xticks(np.arange(min(xAkse), max(xAkse)+1, 1.0))
+    ax0.set_xlabel('Årstal')
+    ax0.set_ylabel('Forekomster')
+    ax0.set_title('Gange ' + ord + ' blev sagt i dronningens nytårstaler')
 
-    plt.axhline(y=grænseVærdi, linewidth=1, color='r')
+    ax0.axhline(y=grænseVærdi, linewidth=1, color='r')
 
-    text = ord + ' nævnes ' + str(gennemsnitligtGangeOrdNævnes(range(2001,2022),ord)) + ' gange fra 2001 til 2021.'
+    text = ord + ' nævnes ' + str(round(gennemsnitligtGangeOrdNævnes(range(2001,2023),ord),2)) + ' gange fra 2001 til 2022.'
     plt.figtext(0.1, 0.15, text)    
     
-    text = ord + ' nævnes ' + str(gennemsnitligtGangeOrdNævnes(range(2016,2022),ord)) + ' gange fra 2016 til 2021.'
+    text = ord + ' nævnes ' + str(round(gennemsnitligtGangeOrdNævnes(range(2016,2023),ord),2)) + ' gange fra 2016 til 2022.'
     plt.figtext(0.1, 0.10, text)
+
+    over = 0
+    under = 0
+    for tal in yAkse:
+        if tal < grænseVærdi:
+            under += 1
+        elif tal > grænseVærdi:
+            over += 1
+    ax1.pie([over, under], labels=["Over: " + str(over), "Under: " + str(under)], colors=['red', 'deepskyblue'])
     
-    plt.savefig("../Diagrammer/" + ord + "_2001_til_2021.png")
-    plt.clf()
+    plt.sca(ax1)
+    text = str(round(over/(over+under) * 100, 2)) + ' % af årene fra 2001 til 2022 nævnes ' + ord + ' flere end ' + str(grænseVærdi) + ' gange.'
+    plt.figtext(0.5, 0.15, text)
+
+    nævntIÅrRække = HvorMangeGangeNaevnes([ord], range(2016,2023))[ord]
+    over = 0
+    under = 0
+    for tal in nævntIÅrRække:
+        if tal[1] < grænseVærdi:
+            under += 1
+        elif tal[1] > grænseVærdi:
+            over += 1
+    text = str(round(over/(over+under) * 100, 2)) + ' % af årene fra 2016 til 2022 nævnes ' + ord + ' flere end ' + str(grænseVærdi) + ' gange.'
+    plt.figtext(0.5, 0.1, text)
+
+
+    fig.savefig("../Diagrammer/" + ord + "_2001_til_2023.png")
+    fig.clf()
 
 
 
 if __name__ == "__main__":
     # KlargoerDatabase()
-    IndsaetAlleTalerIDatabasen()
+    # IndsaetAlleTalerIDatabasen()
     oddsOrdDict = {
-        "danmark": 7.5,
-        "danske": 4.5,
-        "tak": 3.5,
-        "grønland": 3.5,
+        "danmark": 8.5,
+        "danske": 5.5,
+        "tak": 4.5,
+        "grønland": 2.5,
         "færøerne": 2.5,
         "nytår": 2.5,
-        "samfund": 2.5,
-        "verden": 2.5,
+        "samfund": 1.5,
+        "verden": 4.5,
         "nytårsønsker": 2.5
     }
-    ordbog = HvorMangeGangeNaevnes(oddsOrdDict, range(2001, 2022))
+    ordbog = HvorMangeGangeNaevnes(oddsOrdDict, range(2001, 2023))
     for ord in ordbog:
         plotOrdPerAar(ord, ordbog[ord], oddsOrdDict[ord])
     # print(gennemsnitligtGangeOrdNævnes(range(2015,2020), 'grønland'))
